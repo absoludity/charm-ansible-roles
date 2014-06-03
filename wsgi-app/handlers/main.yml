@@ -1,0 +1,7 @@
+- name: Restart wsgi
+  # Trigger the wsgi subordinate to restart by changing settings.
+  command: >
+    relation-set -r {{ item.key }}
+    timestamp={{ ansible_date_time.iso8601_micro }}
+  when: relations['wsgi-file']
+  with_dict: relations['wsgi-file']

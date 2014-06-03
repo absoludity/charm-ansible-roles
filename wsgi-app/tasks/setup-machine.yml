@@ -1,0 +1,21 @@
+---
+- name: Install dependencies.
+  tags:
+    - install
+    - upgrade-charm
+  apt: pkg={{ item }}
+  with_items:
+    - unzip
+
+- name: Setup directories.
+  tags:
+    - config-changed
+  file: path={{ item }} state=directory owner=ubunet group=ubunet recurse=yes
+  with_items:
+    - "{{ application_dir }}"
+    - "{{ code_dir }}"
+    - "{{ current_code_dir}}"
+    - "{{ archives_dir }}"
+    - "{{ current_archive_dir }}"
+    - "{{ log_dir }}"
+    - "{{ local_oopses }}"

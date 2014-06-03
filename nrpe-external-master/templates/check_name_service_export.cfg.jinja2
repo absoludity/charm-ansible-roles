@@ -1,0 +1,10 @@
+#---------------------------------------------------
+# This file is Juju managed
+#---------------------------------------------------
+define service {
+    use                             active-service
+    host_name                       {{ service_context }}-{{ unit_name }}
+    service_description             {{ service_description }}
+    check_command                   check_nrpe!{{ check_name }}
+    servicegroups                   {{ service_context }}
+}

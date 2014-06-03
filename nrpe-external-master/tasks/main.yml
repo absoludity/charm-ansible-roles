@@ -1,0 +1,25 @@
+- name: Write nagios check command config.
+  tags:
+    - nrpe-external-master-relation-changed
+  template:
+    src: "check_name.cfg.jinja2"
+    dest: "/etc/nagios/nrpe.d/{{ check_name }}.cfg"
+    owner: nagios
+    group: nagios
+    mode: 0644
+
+- name: Write nagios check service definition for export.
+  tags:
+    - nrpe-external-master-relation-changed
+  template:
+    src: "check_name_service_export.cfg.jinja2"
+    dest: "/var/lib/nagios/export/service__{{ service_context }}-{{ unit_name }}_{{ check_name }}.cfg"
+    owner: nagios
+    group: nagios
+    mode: 0644
+
+- name: Trigger nrpe-external-master-relation-changed to restart.
+  tags:
+    - nrpe-external-master-relation-changed
+  command: >
+    relation-set timestamp={{ ansible_date_time.iso8601_micro }}

@@ -1,0 +1,7 @@
+application_dir: /srv/{{ app_label }}
+code_dir: "{{ application_dir }}/code"
+current_code_dir: "{{ code_dir }}/{{ code_archive | dirname }}"
+archives_dir: "{{ application_dir }}/code/archives"
+current_archive_dir: "{{ archives_dir }}/{{ code_archive | dirname }}"
+log_dir: "{{ application_dir }}/logs"
+local_oopses: "{{ log_dir }}/local-oopses"
