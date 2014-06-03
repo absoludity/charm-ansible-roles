@@ -78,3 +78,14 @@
     state: link
   notify:
     - Restart wsgi
+
+- name: Setup logrotation
+  tags:
+    - install
+    - upgrade-charm
+  template:
+    src: "log-rotate.j2"
+    dest: /etc/logrotate.d/click-index
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
+    mode: 0644

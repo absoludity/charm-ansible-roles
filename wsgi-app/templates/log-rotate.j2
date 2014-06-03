@@ -1,0 +1,10 @@
+{{ log_dir }}/{{ app_label }}-access.log {{ log_dir }}/{{ app_label }}-error.log {
+    daily
+    rotate 60
+    missingok
+    notifempty
+    compress
+    compresscmd /bin/bzip2
+    copytruncate
+    dateext
+}
