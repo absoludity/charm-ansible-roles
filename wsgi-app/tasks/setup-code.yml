@@ -6,8 +6,8 @@
     src: "{{ charm_dir }}/files/{{ code_archive }}"
     dest: "{{ archives_dir }}/{{ code_archive }}"
     force: no
-    owner: ubunet
-    group: ubunet
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
     mode: 0644
   when: code_assets_uri == ""
 
@@ -18,8 +18,8 @@
     url: "{{ code_assets_uri }}/{{ code_archive }}"
     dest: "{{ archives_dir }}/{{ code_archive }}"
     force: no
-    owner: ubunet
-    group: ubunet
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
     mode: 0644
   when: code_assets_uri != ""
 
@@ -35,8 +35,8 @@
   unarchive:
     src: "{{ archives_dir }}/{{ code_archive }}"
     dest: "{{ current_code_dir }}"
-    owner: ubunet
-    group: ubunet
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
   when: already_extracted.stat.exists == False
 
 # The following is only necessary because the unarchived code files
@@ -44,7 +44,7 @@
 - name: Set user/group for application directory.
   tags:
     - config-changed
-  file: path={{ code_dir }} state=directory owner=ubunet group=ubunet recurse=yes
+  file: path={{ code_dir }} state=directory owner={{ wsgi_user }} group={{ wsgi_group }} recurse=yes
   when: already_extracted.stat.exists == False
 
 - name: Touch a file to ensure that we don't extract the same archive again.

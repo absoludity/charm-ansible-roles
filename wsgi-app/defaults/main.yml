@@ -1,0 +1,7 @@
+code_assets_uri: ''
+python_path: ''
+current_symlink: latest
+listen_port: 8081
+env_extra: ''
+wsgi_user: wsgi_user
+wsgi_group: wsgi_group

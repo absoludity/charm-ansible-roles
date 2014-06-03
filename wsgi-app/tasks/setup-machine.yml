@@ -1,4 +1,16 @@
 ---
+- name: Setup groups.
+  tags:
+    - install
+    - upgrade-charm
+  group: name={{ wsgi_group }} gid=1500
+
+- name: Setup users.
+  tags:
+    - install
+    - upgrade-charm
+  user: name={{ wsgi_user }} uid=1500 group={{ wsgi_group }} createhome=no
+
 - name: Install dependencies.
   tags:
     - install
@@ -10,7 +22,7 @@
 - name: Setup directories.
   tags:
     - config-changed
-  file: path={{ item }} state=directory owner=ubunet group=ubunet recurse=yes
+  file: path={{ item }} state=directory owner={{ wsgi_user }} group={{ wsgi_group }} recurse=yes
   with_items:
     - "{{ application_dir }}"
     - "{{ code_dir }}"

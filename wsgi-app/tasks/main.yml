@@ -8,8 +8,8 @@
   file:
     src: "{{ code_dir }}/{{ code_archive | dirname }}"
     dest: "{{ code_dir }}/latest"
-    owner: ubunet
-    group: ubunet
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
     state: link
 
 - name: Check whether the set current symlink exists.
@@ -32,8 +32,8 @@
   file:
     src: "{{ code_dir }}/{{ current_symlink }}"
     dest: "{{ code_dir }}/current"
-    owner: ubunet
-    group: ubunet
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
     state: link
 
 - name: Set wsgi details if relation defined
@@ -44,9 +44,9 @@
     relation-set -r {{ item.key }}
     project_name={{ app_label }}
     working_dir={{ code_dir }}/current
-    python_path={{ code_dir }}/current:{{ code_dir }}/current/{{ app_lib_dir }}
-    wsgi_user=ubunet
-    wsgi_group=ubunet
+    python_path={{ python_path }}
+    wsgi_user={{ wsgi_user }}
+    wsgi_group={{ wsgi_group }}
     port={{ listen_port }}
     wsgi_access_logfile={{ log_dir }}/{{ app_label }}-access.log
     wsgi_wsgi_file={{ wsgi_application }}
@@ -73,8 +73,8 @@
   file:
     src: "{{ code_dir }}/{{ ansible_env.CURRENT_SYMLINK }}"
     dest: "{{ code_dir }}/current"
-    owner: ubunet
-    group: ubunet
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
     state: link
   notify:
     - Restart wsgi
