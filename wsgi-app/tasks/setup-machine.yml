@@ -38,7 +38,7 @@
     - upgrade-charm
   template:
     src: "log-rotate.j2"
-    dest: /etc/logrotate.d/click-index
+    dest: /etc/logrotate.d/{{ app_label }}
     owner: "{{ wsgi_user }}"
     group: "{{ wsgi_group }}"
     mode: 0644
