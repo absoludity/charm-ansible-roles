@@ -1,5 +1,6 @@
 application_dir: /srv/{{ app_label }}
 code_dir: "{{ application_dir }}/code"
+log_dir: "{{ application_dir }}/logs"
 code_assets_uri: ''
 python_path: ''
 current_symlink: latest
