@@ -14,10 +14,10 @@
 - name: Download code tarball archive from the code assets uri
   tags:
     - config-changed
-  get_url:
+  uri:
     url: "{{ code_assets_uri }}/{{ code_archive }}"
+    HEADER_X-Auth-Token: "{{ code_assets_auth_token }}"
     dest: "{{ archives_dir }}/{{ code_archive }}"
-    force: no
     owner: "{{ wsgi_user }}"
     group: "{{ wsgi_group }}"
     mode: 0644
