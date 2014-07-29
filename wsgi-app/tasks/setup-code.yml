@@ -37,6 +37,7 @@
     dest: "{{ current_code_dir }}"
     owner: "{{ wsgi_user }}"
     group: "{{ wsgi_group }}"
+    copy: no
   when: already_extracted.stat.exists == False
 
 # The following is only necessary because the unarchived code files
