@@ -50,7 +50,7 @@
     port={{ listen_port }}
     wsgi_access_logfile={{ log_dir }}/{{ app_label }}-access.log
     wsgi_wsgi_file={{ wsgi_application }}
-    wsgi_extra=--error-logfile={{ log_dir }}/{{ app_label }}-error.log
+    wsgi_extra="--error-logfile={{ log_dir }}/{{ app_label }}-error.log {{ wsgi_extra }}"
     env_extra='{{ env_extra }}'
     timestamp={{ ansible_date_time.iso8601_micro }}
   when: relations['wsgi-file']
@@ -62,7 +62,6 @@
     - config-changed
   command: >
     relation-set -r {{ item.key }}
-    hostname={{ ansible_default_ipv4.address }}
     port={{ listen_port }}
   when: relations['website']
   with_dict: relations['website']

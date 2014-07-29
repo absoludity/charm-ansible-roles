@@ -3,13 +3,13 @@
   tags:
     - install
     - upgrade-charm
-  group: name={{ wsgi_group }} gid=1500
+  group: name={{ wsgi_group }}
 
 - name: Setup users.
   tags:
     - install
     - upgrade-charm
-  user: name={{ wsgi_user }} uid=1500 group={{ wsgi_group }} createhome=no
+  user: name={{ wsgi_user }} group={{ wsgi_group }} createhome=no
 
 - name: Install dependencies.
   tags:
