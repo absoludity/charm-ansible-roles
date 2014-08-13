@@ -1,57 +1,18 @@
----
-- include: setup-machine.yml
-- include: setup-code.yml
-
-- name: Symlink latest tarball of application code
-  tags:
-    - config-changed
-  file:
-    src: "{{ code_dir }}/{{ code_archive | dirname }}"
-    dest: "{{ code_dir }}/latest"
-    owner: "{{ wsgi_user }}"
-    group: "{{ wsgi_group }}"
-    state: link
-
-- name: Check whether the set current symlink exists.
-  tags:
-    - wsgi-file-relation-changed
-    - config-changed
-  stat: path={{ code_dir }}/{{ current_symlink }}
-  register: stat_current_symlink
-- name: Fail if the configured current_symlink does not exist.
-  tags:
-    - wsgi-file-relation-changed
-    - config-changed
-  fail: msg="The configured current_symlink does not exist, {{ code_dir }}/{{ current_symlink }}"
-  when: stat_current_symlink.stat.exists == False
-
-- name: Update the current symlink.
-  tags:
-    - wsgi-file-relation-changed
-    - config-changed
-  file:
-    src: "{{ code_dir }}/{{ current_symlink }}"
-    dest: "{{ code_dir }}/current"
-    owner: "{{ wsgi_user }}"
-    group: "{{ wsgi_group }}"
-    state: link
-
 - name: Set wsgi details if relation defined
   tags:
     - wsgi-file-relation-changed
     - config-changed
   command: >
     relation-set -r {{ item.key }}
-    project_name={{ app_label }}
     working_dir={{ code_dir }}/current
     python_path={{ python_path }}
     wsgi_user={{ wsgi_user }}
     wsgi_group={{ wsgi_group }}
     port={{ listen_port }}
-    wsgi_access_logfile={{ log_dir }}/{{ app_label }}-access.log
+    wsgi_access_logfile={{ log_dir }}/{{ service_name }}-access.log
     wsgi_wsgi_file={{ wsgi_application }}
-    wsgi_extra="--error-logfile={{ log_dir }}/{{ app_label }}-error.log {{ wsgi_extra }}"
-    env_extra='{{ env_extra }}'
+    wsgi_extra="--error-logfile={{ log_dir }}/{{ service_name }}-error.log {{ wsgi_extra }}"
+    env_extra="{{ env_extra }}"
     timestamp={{ ansible_date_time.iso8601_micro }}
   when: relations['wsgi-file']
   with_dict: relations['wsgi-file']
@@ -66,14 +27,13 @@
   when: relations['website']
   with_dict: relations['website']
 
-- name: Manually set current symlink.
+- name: Setup logrotation
   tags:
-    - set-current-symlink
-  file:
-    src: "{{ code_dir }}/{{ ansible_env.CURRENT_SYMLINK }}"
-    dest: "{{ code_dir }}/current"
+    - install
+    - upgrade-charm
+  template:
+    src: "log-rotate.j2"
+    dest: /etc/logrotate.d/{{ service_name }}
     owner: "{{ wsgi_user }}"
     group: "{{ wsgi_group }}"
-    state: link
-  notify:
-    - Restart wsgi
+    mode: 0644

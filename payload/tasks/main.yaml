@@ -1,0 +1,94 @@
+- name: Install dependencies.
+  tags:
+    - install
+    - upgrade-charm
+  apt: pkg={{ item }}
+  with_items:
+    - unzip
+
+- name: Copy payload from the charm if not using base_uri
+  tags:
+    - config-changed
+  copy:
+    src: "{{ charm_dir }}/files/{{ payload_archive|dirname }}"
+    dest: "{{ archives_dir }}"
+    force: no
+    mode: 0644
+  when: base_uri == ""
+
+- name: Download payload from the payloads uri
+  tags:
+    - config-changed
+  uri:
+    url: "{{ base_uri }}/{{ payload_archive }}"
+    HEADER_X-Auth-Token: "{{ uri_auth_token }}"
+    dest: "{{ archives_dir }}/{{ payload_archive }}"
+    mode: 0644
+  when: base_uri != ""
+
+- name: Check if archive is already extracted
+  tags:
+    - config-changed
+  stat: path={{ current_payload_dir }}/EXTRACTED
+  register: already_extracted
+
+- name: create dir to extract
+  tags:
+    - config-changed
+  file: path="{{ current_payload_dir }}" state=directory group={{ group }}
+
+- name: Extract payload.
+  tags:
+    - config-changed
+  unarchive:
+    src: "{{ archives_dir }}/{{ payload_archive }}"
+    dest: "{{ current_payload_dir }}"
+    group: "{{ group }}"
+    copy: no
+  when: already_extracted.stat.exists == False
+
+- name: Touch a file to ensure that we don't extract the same archive again.
+  tags:
+    - config-changed
+  command: /usr/bin/touch {{ current_payload_dir }}/EXTRACTED
+  when: already_extracted.stat.exists == False
+
+- name: Symlink latest payload
+  tags:
+    - config-changed
+  file:
+    src: "{{ payload_dir }}/{{ payload_archive | dirname }}"
+    dest: "{{ payload_dir }}/latest"
+    state: link
+
+- name: Check whether the set current symlink exists.
+  tags:
+    - config-changed
+  stat: path={{ payload_dir }}/{{ current_symlink }}
+  register: stat_current_symlink
+
+- name: Fail if the configured current_symlink does not exist.
+  tags:
+    - config-changed
+  fail: 
+    msg: "The configured current_symlink does not exist, {{ payload_dir }}/{{ current_symlink }}"
+  when: stat_current_symlink.stat.exists == False
+
+- name: Update the current symlink.
+  tags:
+    - wsgi-file-relation-changed
+    - config-changed
+  file:
+    src: "{{ payload_dir }}/{{ current_symlink }}"
+    dest: "{{ payload_dir }}/current"
+    state: link
+
+- name: Manually set current symlink.
+  tags:
+    - set-current-symlink
+  file:
+    src: "{{ payload_dir }}/{{ ansible_env.CURRENT_SYMLINK }}"
+    dest: "{{ payload_dir }}/current"
+    state: link
+  notify:
+    - Restart wsgi
