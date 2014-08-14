@@ -3,3 +3,4 @@ service_context: juju
 unit_name: "{{ local_unit | replace('/', '-') }}"
 plugin_dir: /usr/lib/nagios/plugins
 service_description:
+service_groups: "{{ service_context }}"
