@@ -1,0 +1,4 @@
+current_payload_dir: "{{ payload_dir }}/{{ payload_archive | dirname }}"
+archives_dir: "{{ payload_dir }}/archives"
+current_archive_dir: "{{ archives_dir }}/{{ payload_archive | dirname }}"
+

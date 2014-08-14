@@ -1,0 +1,39 @@
+- name: Set wsgi details if relation defined
+  tags:
+    - wsgi-file-relation-changed
+    - config-changed
+  command: >
+    relation-set -r {{ item.key }}
+    working_dir={{ code_dir }}/current
+    python_path={{ python_path }}
+    wsgi_user={{ wsgi_user }}
+    wsgi_group={{ wsgi_group }}
+    port={{ listen_port }}
+    wsgi_access_logfile={{ log_dir }}/{{ service_name }}-access.log
+    wsgi_wsgi_file={{ wsgi_application }}
+    wsgi_extra="--error-logfile={{ log_dir }}/{{ service_name }}-error.log {{ wsgi_extra }}"
+    env_extra="{{ env_extra }}"
+    timestamp={{ ansible_date_time.iso8601_micro }}
+  when: relations['wsgi-file']
+  with_dict: relations['wsgi-file']
+
+- name: Set the website relation if defined.
+  tags:
+    - website-relation-changed
+    - config-changed
+  command: >
+    relation-set -r {{ item.key }}
+    port={{ listen_port }}
+  when: relations['website']
+  with_dict: relations['website']
+
+- name: Setup logrotation
+  tags:
+    - install
+    - upgrade-charm
+  template:
+    src: "log-rotate.j2"
+    dest: /etc/logrotate.d/{{ service_name }}
+    owner: "{{ wsgi_user }}"
+    group: "{{ wsgi_group }}"
+    mode: 0644

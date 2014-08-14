@@ -1,6 +1,6 @@
 - name: nrpe config changes
   command: >
-    relation-set -r {{ item.key }}
+    relation-set -r {{ item.__relid__ }}
     timestamp={{ ansible_date_time.iso8601_micro }}
   when: relations['nrpe-external-master']
-  with_dict: relations['nrpe-external-master']
+  with_items: relations['nrpe-external-master']

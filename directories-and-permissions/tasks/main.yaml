@@ -1,0 +1,31 @@
+- name: Setup group
+  tags:
+    - install
+    - upgrade-charm
+  group: name={{ user }}
+
+- name: Setup user
+  tags:
+    - install
+    - upgrade-charm
+  user: name={{ user }} group={{ user }} createhome=no
+
+- name: Setup directories.
+  tags:
+    - install
+    - upgrade-charm
+    - config-changed
+  file: path={{ item }} state=directory owner={{ user }} group={{ user }}
+  with_items: readonly_dirs + writable_dirs 
+
+- name: Force permissions
+  tags:
+    - install
+    - upgrade-charm
+    - config-changed
+  command: echo "Forcing permissions setting" 
+  changed_when: True
+  notify: 
+    - Ensure group ownership
+    - Ensure readonly group permissions
+    - Ensure writable group permissions
