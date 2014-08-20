@@ -9,9 +9,9 @@
     wsgi_user={{ wsgi_user }}
     wsgi_group={{ wsgi_group }}
     port={{ listen_port }}
-    wsgi_access_logfile={{ log_dir }}/{{ service_name }}-access.log
+    wsgi_access_logfile={{ access_log }}
     wsgi_wsgi_file={{ wsgi_application }}
-    wsgi_extra="--error-logfile={{ log_dir }}/{{ service_name }}-error.log {{ wsgi_extra }}"
+    wsgi_extra="--error-logfile={{ error_log }} {{ wsgi_extra }}"
     env_extra="{{ env_extra }}"
     timestamp={{ ansible_date_time.iso8601_micro }}
   when: relations['wsgi-file']
