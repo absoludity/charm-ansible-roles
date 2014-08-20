@@ -1,4 +1,4 @@
-{{ log_dir }}/{{ service_name }}-access.log {{ log_dir }}/{{ service_name }}-error.log {
+{{ access_log }} {{ error_log }} {
     daily
     rotate 60
     missingok
