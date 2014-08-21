@@ -6,6 +6,12 @@
   with_items:
     - unzip
 
+- name: Determine if the payload is already in place
+  stat: path="{{ archives_dir }}/{{ payload_archive }}"
+  tags:
+    - config-changed
+  register: payload_exists
+
 - name: Copy payload from the charm if not using base_uri
   tags:
     - config-changed
@@ -14,7 +20,7 @@
     dest: "{{ archives_dir }}"
     force: no
     mode: 0644
-  when: base_uri == ""
+  when: not payload_exists.stat.exists and base_uri == ""
 
 - name: Download payload from the payloads uri
   tags:
@@ -24,7 +30,7 @@
     HEADER_X-Auth-Token: "{{ uri_auth_token }}"
     dest: "{{ archives_dir }}/{{ payload_archive }}"
     mode: 0644
-  when: base_uri != ""
+  when: not payload_exists.stat.exists and base_uri != ""
 
 - name: Check if archive is already extracted
   tags:
@@ -73,22 +79,3 @@
   fail: 
     msg: "The configured current_symlink does not exist, {{ payload_dir }}/{{ current_symlink }}"
   when: stat_current_symlink.stat.exists == False
-
-- name: Update the current symlink.
-  tags:
-    - wsgi-file-relation-changed
-    - config-changed
-  file:
-    src: "{{ payload_dir }}/{{ current_symlink }}"
-    dest: "{{ payload_dir }}/current"
-    state: link
-
-- name: Manually set current symlink.
-  tags:
-    - set-current-symlink
-  file:
-    src: "{{ payload_dir }}/{{ ansible_env.CURRENT_SYMLINK }}"
-    dest: "{{ payload_dir }}/current"
-    state: link
-  notify:
-    - Restart wsgi

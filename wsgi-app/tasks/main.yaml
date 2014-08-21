@@ -35,3 +35,24 @@
     owner: "{{ wsgi_user }}"
     group: "{{ wsgi_group }}"
     mode: 0644
+
+- name: Update the current symlink.
+  tags:
+    - wsgi-file-relation-changed
+    - config-changed
+  file:
+    src: "{{ code_dir }}/{{ current_symlink }}"
+    dest: "{{ code_dir }}/current"
+    state: link
+  notify:
+    - Restart wsgi
+
+- name: Manually set current symlink.
+  tags:
+    - set-current-symlink
+  file:
+    src: "{{ code_dir }}/{{ ansible_env.CURRENT_SYMLINK }}"
+    dest: "{{ code_dir }}/current"
+    state: link
+  notify:
+    - Restart wsgi
