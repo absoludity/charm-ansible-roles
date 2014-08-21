@@ -3,7 +3,7 @@
     - wsgi-file-relation-changed
     - config-changed
   command: >
-    relation-set -r {{ item.key }}
+    relation-set -r {{ item.__relid__ }}
     working_dir={{ code_dir }}/current
     python_path={{ python_path }}
     wsgi_user={{ wsgi_user }}
@@ -14,18 +14,16 @@
     wsgi_extra="--error-logfile={{ error_log }} {{ wsgi_extra }}"
     env_extra="{{ env_extra }}"
     timestamp={{ ansible_date_time.iso8601_micro }}
-  when: relations['wsgi-file']
-  with_dict: relations['wsgi-file']
+  with_items: relations['wsgi-file']
 
 - name: Set the website relation if defined.
   tags:
     - website-relation-changed
     - config-changed
   command: >
-    relation-set -r {{ item.key }}
+    relation-set -r {{ item.__relid__ }}
     port={{ listen_port }}
-  when: relations['website']
-  with_dict: relations['website']
+  with_items: relations['website']
 
 - name: Setup logrotation
   tags:
