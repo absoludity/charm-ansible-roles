@@ -1,3 +1,5 @@
 base_uri: ""
 uri_auth_token: ""
 current_symlink: latest
+swift_auth_url: ""
+swift_credentials: ""

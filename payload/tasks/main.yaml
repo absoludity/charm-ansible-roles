@@ -12,6 +12,16 @@
     - config-changed
   register: payload_exists
 
+- name: Ensure payload directory exists
+  tags:
+    - config-changed
+  file:
+    state: directory
+    group: "{{ group }}"
+    mode: 0644
+    path: "{{ archives_dir }}/{{ payload_archive|dirname }}"
+  when: not payload_exists.stat.exists
+
 - name: Copy payload from the charm if not using base_uri
   tags:
     - config-changed
@@ -22,7 +32,20 @@
     mode: 0644
   when: not payload_exists.stat.exists and base_uri == ""
 
-- name: Download payload from the payloads uri
+- name: Generate an auth-token if required
+  tags:
+    - config-changed
+  uri:
+    url: "{{ swift_auth_url }}/tokens"
+    method: "POST"
+    HEADER_Content-Type: "application/json"
+    HEADER_Accept: "application/json"
+    body: " {{ swift_credentials }}" # Note, the space seems to ensure the value is a string, rather than a dict :/
+    return_content: "yes"
+  register: auth_request
+  when: not payload_exists.stat.exists and base_uri != "" and uri_auth_token == "" and swift_auth_url != ""
+
+- name: Download payload from the payloads uri using a configured auth token
   tags:
     - config-changed
   uri:
@@ -30,7 +53,18 @@
     HEADER_X-Auth-Token: "{{ uri_auth_token }}"
     dest: "{{ archives_dir }}/{{ payload_archive }}"
     mode: 0644
-  when: not payload_exists.stat.exists and base_uri != ""
+  when: not payload_exists.stat.exists and base_uri != "" and uri_auth_token != ""
+
+- name: Download payload from the payloads uri using the generated auth token
+  tags:
+    - config-changed
+  uri:
+    url: "{{ base_uri }}/{{ payload_archive }}"
+    HEADER_X-Auth-Token: "{{ auth_request.json.access.token.id }}"
+    dest: "{{ archives_dir }}/{{ payload_archive }}"
+    mode: 0644
+  when: not payload_exists.stat.exists and base_uri != "" and uri_auth_token == "" and "json" in auth_request
+
 
 - name: Check if archive is already extracted
   tags:
