@@ -45,6 +45,7 @@
 - name: Ensure payload directory exists
   tags:
     - config-changed
+    - preload
   file:
     state: directory
     group: "{{ group }}"
