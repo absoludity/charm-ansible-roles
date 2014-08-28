@@ -39,6 +39,7 @@
   stat: path="{{ archives_dir }}/{{ payload_archive }}"
   tags:
     - config-changed
+    - preload
   register: payload_exists
 
 - name: Copy payload from the charm if not using base_uri
