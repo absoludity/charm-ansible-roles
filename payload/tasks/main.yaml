@@ -42,6 +42,16 @@
     - preload
   register: payload_exists
 
+- name: Ensure payload directory exists
+  tags:
+    - config-changed
+  file:
+    state: directory
+    group: "{{ group }}"
+    mode: 0644
+    path: "{{ archives_dir }}/{{ payload_archive|dirname }}"
+  when: not payload_exists.stat.exists
+
 - name: Copy payload from the charm if not using base_uri
   tags:
     - config-changed
@@ -52,16 +62,6 @@
     mode: 0644
     group: "{{ user }}"
   when: not payload_exists.stat.exists and base_uri == ""
-
-- name: Ensure payload directory exists
-  tags:
-    - config-changed
-  file:
-    state: directory
-    group: "{{ group }}"
-    mode: 0644
-    path: "{{ archives_dir }}/{{ payload_archive|dirname }}"
-  when: not payload_exists.stat.exists
 
 - name: Generate an auth-token if required
   tags:
