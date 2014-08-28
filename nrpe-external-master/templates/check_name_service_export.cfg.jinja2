@@ -6,5 +6,5 @@ define service {
     host_name                       {{ service_context }}-{{ unit_name }}
     service_description             {{ service_description }}
     check_command                   check_nrpe!{{ check_name }}
-    servicegroups                   {{ service_groups }}
+    servicegroups                   {{ service_groups if service_groups else sevice_context }}
 }
