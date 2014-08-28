@@ -6,21 +6,40 @@
   with_items:
     - unzip
 
+- name: check current symlink
+  tags:
+    - preload
+  shell: readlink -f "{{ payload_dir}}/current"
+  register: current_link
+
+- name: Fail if trying to preload current revision
+  tags:
+    - preload
+  fail:
+    msg: "Cannot preload/overwrite currently used payload, rollback first"
+  when: current_link.stdout == "{{ current_payload_dir }}"
+
+- name: remove archive if forcing reload
+  tags:
+    - preload
+  file: 
+    path: "{{ archives_dir }}/{{ payload_archive }}"
+    state: absent
+  when: force_asset_reload
+
+- name: remove extracted payload if forcing reload
+  tags:
+    - preload
+  file: 
+    path: "{{ current_payload_dir }}"
+    state: absent
+  when: force_asset_reload
+
 - name: Determine if the payload is already in place
   stat: path="{{ archives_dir }}/{{ payload_archive }}"
   tags:
     - config-changed
   register: payload_exists
-
-- name: Ensure payload directory exists
-  tags:
-    - config-changed
-  file:
-    state: directory
-    group: "{{ group }}"
-    mode: 0644
-    path: "{{ archives_dir }}/{{ payload_archive|dirname }}"
-  when: not payload_exists.stat.exists
 
 - name: Copy payload from the charm if not using base_uri
   tags:
@@ -30,11 +49,23 @@
     dest: "{{ archives_dir }}"
     force: no
     mode: 0644
+    group: "{{ user }}"
   when: not payload_exists.stat.exists and base_uri == ""
+
+- name: Create archive directory
+  tags:
+    - config-changed
+    - preload
+  file: 
+    path={{ current_archive_dir }}
+    state=directory
+    group={{ user }}
+  when: base_uri != ""
 
 - name: Generate an auth-token if required
   tags:
     - config-changed
+    - preload
   uri:
     url: "{{ swift_auth_url }}/tokens"
     method: "POST"
@@ -48,6 +79,7 @@
 - name: Download payload from the payloads uri using a configured auth token
   tags:
     - config-changed
+    - preload
   uri:
     url: "{{ base_uri }}/{{ payload_archive }}"
     HEADER_X-Auth-Token: "{{ uri_auth_token }}"
@@ -58,6 +90,7 @@
 - name: Download payload from the payloads uri using the generated auth token
   tags:
     - config-changed
+    - preload
   uri:
     url: "{{ base_uri }}/{{ payload_archive }}"
     HEADER_X-Auth-Token: "{{ auth_request.json.access.token.id }}"
@@ -65,21 +98,26 @@
     mode: 0644
   when: not payload_exists.stat.exists and base_uri != "" and uri_auth_token == "" and "json" in auth_request
 
-
 - name: Check if archive is already extracted
   tags:
     - config-changed
+    - preload
   stat: path={{ current_payload_dir }}/EXTRACTED
   register: already_extracted
 
 - name: create dir to extract
   tags:
     - config-changed
-  file: path="{{ current_payload_dir }}" state=directory group={{ group }}
+    - preload
+  file: 
+    path: "{{ current_payload_dir }}" 
+    state: directory
+    group: "{{ group }}"
 
 - name: Extract payload.
   tags:
     - config-changed
+    - preload
   unarchive:
     src: "{{ archives_dir }}/{{ payload_archive }}"
     dest: "{{ current_payload_dir }}"
@@ -90,6 +128,7 @@
 - name: Touch a file to ensure that we don't extract the same archive again.
   tags:
     - config-changed
+    - preload
   command: /usr/bin/touch {{ current_payload_dir }}/EXTRACTED
   when: already_extracted.stat.exists == False
 
