@@ -53,15 +53,15 @@
     group: "{{ user }}"
   when: not payload_exists.stat.exists and base_uri == ""
 
-- name: Create archive directory
+- name: Ensure payload directory exists
   tags:
     - config-changed
-    - preload
-  file: 
-    path={{ current_archive_dir }}
-    state=directory
-    group={{ user }}
-  when: base_uri != ""
+  file:
+    state: directory
+    group: "{{ group }}"
+    mode: 0644
+    path: "{{ archives_dir }}/{{ payload_archive|dirname }}"
+  when: not payload_exists.stat.exists
 
 - name: Generate an auth-token if required
   tags:
