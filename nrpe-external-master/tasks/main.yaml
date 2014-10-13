@@ -8,6 +8,7 @@
     owner: nagios
     group: nagios
     mode: 0644
+  when: relations['nrpe-external-master']
   notify:
     - nrpe config changes
 
@@ -15,11 +16,13 @@
   tags:
     - nrpe-external-master-relation-changed
     - upgrade-charm
+    - config-changed
   template:
     src: "check_name_service_export.cfg.jinja2"
-    dest: "/var/lib/nagios/export/service__{{ service_context }}-{{ unit_name }}_{{ check_name }}.cfg"
+    dest: "/var/lib/nagios/export/service__{{ unit_name }}_{{ check_name }}.cfg"
     owner: nagios
     group: nagios
     mode: 0644
+  when: relations['nrpe-external-master']
   notify:
     - nrpe config changes
