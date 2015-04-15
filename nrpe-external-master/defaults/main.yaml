@@ -6,4 +6,4 @@ service_description:
 service_groups: "{{ service_context }}"
 checks:
   - name: "{{ check_name }}"
-  - params: "{{ check_params }}"
+    params: "{{ check_params }}"
