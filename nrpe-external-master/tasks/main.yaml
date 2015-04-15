@@ -4,11 +4,12 @@
     - upgrade-charm
   template:
     src: "check_name.cfg.jinja2"
-    dest: "/etc/nagios/nrpe.d/{{ check_name }}.cfg"
+    dest: "/etc/nagios/nrpe.d/{{ item.name }}.cfg"
     owner: nagios
     group: nagios
     mode: 0644
   when: relations['nrpe-external-master']
+  with_items: checks
   notify:
     - nrpe config changes
 
