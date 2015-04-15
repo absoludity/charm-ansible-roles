@@ -1,4 +1,4 @@
 #---------------------------------------------------
 # This file is Juju managed
 #---------------------------------------------------
-command[{{ item.name }}]={{ plugin_dir }}/{{ check_name }} {{ item.params }}
+command[{{ item.name }}]={{ plugin_dir }}/{{ item.name }} {{ item.params }}
