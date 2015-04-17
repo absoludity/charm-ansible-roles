@@ -6,6 +6,6 @@ define service {
     use                             active-service
     host_name                       {{ nrpe_relation['nagios_hostname'] | default(unit_name) }}
     service_description             {{ service_description }}
-    check_command                   check_nrpe!{{ check_name }}
+    check_command                   check_nrpe!{{ item.name }}
     servicegroups                   {{ service_groups if service_groups else service_context }}
 }
