@@ -20,10 +20,11 @@
     - config-changed
   template:
     src: "check_name_service_export.cfg.jinja2"
-    dest: "/var/lib/nagios/export/service__{{ unit_name }}_{{ check_name }}.cfg"
+    dest: "/var/lib/nagios/export/service__{{ unit_name }}_{{ item.name }}.cfg"
     owner: nagios
     group: nagios
     mode: 0644
   when: relations['nrpe-external-master']
+  with_items: checks
   notify:
     - nrpe config changes
