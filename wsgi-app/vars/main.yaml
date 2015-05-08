@@ -1,0 +1,3 @@
+current_code_dir: "{{ code_dir }}/{{ code_archive | dirname }}"
+archives_dir: "{{ code_dir }}/archives"
+current_archive_dir: "{{ archives_dir }}/{{ code_archive | dirname }}"
