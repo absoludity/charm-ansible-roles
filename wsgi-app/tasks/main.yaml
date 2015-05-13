@@ -13,6 +13,7 @@
     wsgi_wsgi_file={{ wsgi_application }}
     wsgi_extra="--error-logfile={{ error_log }} {{ wsgi_extra }}"
     env_extra="{{ env_extra }}"
+    gunicorn_path="{{ gunicorn_path }}"
     timestamp={{ ansible_date_time.iso8601_micro }}
   with_items: relations['wsgi-file']
 
@@ -36,15 +37,14 @@
     group: "root"
     mode: 0644
 
-- name: Update the current symlink.
+- name: Trigger updating the current symlink.
   tags:
     - wsgi-file-relation-changed
     - config-changed
-  file:
-    src: "{{ code_dir }}/{{ current_symlink }}"
-    dest: "{{ code_dir }}/current"
-    state: link
+  debug: msg="triggering current symlink update"
+  changed_when: true
   notify:
+    - Update the current symlink
     - Restart wsgi
 
 - name: Manually set current symlink.

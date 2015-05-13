@@ -1,3 +1,9 @@
+- name: Update the current symlink
+  file:
+    src: "{{ code_dir }}/{{ current_symlink }}"
+    dest: "{{ code_dir }}/current"
+    state: link
+
 - name: Restart wsgi
   # Trigger the wsgi subordinate to restart by changing settings.
   command: >
