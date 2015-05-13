@@ -30,7 +30,6 @@
   tags:
     - install
     - upgrade-charm
-    - config-changed
   template:
     src: "log-rotate.j2"
     dest: /etc/logrotate.d/{{ service_name }}
