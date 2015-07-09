@@ -20,7 +20,7 @@
     - config-changed
   template:
     src: "check_name_service_export.cfg.jinja2"
-    dest: "/var/lib/nagios/export/service__{{ unit_name }}_{{ item.name }}.cfg"
+    dest: "/var/lib/nagios/export/service__{{ service_context }}_{{ unit_name }}_{{ item.name }}.cfg"
     owner: nagios
     group: nagios
     mode: 0644
