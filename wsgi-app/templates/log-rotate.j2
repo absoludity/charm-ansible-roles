@@ -1,7 +1,7 @@
 {{ access_log }} {{ error_log }} {{ extra_logs }} {
-    daily
+    {{log_rotation_frequency}}
     su root {{ wsgi_group }}
-    rotate 60
+    rotate {{logs_to_keep}}
     missingok
     notifempty
     compress
