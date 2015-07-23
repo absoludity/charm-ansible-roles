@@ -7,3 +7,5 @@ access_log: "{{ log_dir }}/{{ service_name }}-access.log"
 error_log: "{{ log_dir }}/{{ service_name }}-error.log"
 extra_logs: ""
 gunicorn_path: "gunicorn"
+log_rotation_frequency: "daily"
+logs_to_keep: 729
