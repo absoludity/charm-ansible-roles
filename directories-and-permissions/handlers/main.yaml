@@ -8,5 +8,5 @@
   with_items: readonly_dirs
 
 - name: Ensure writable group permissions
-  shell: chmod -R g+w {{ item }}
+  shell: chmod -R g+rw {{ item }}
   with_items: writable_dirs
