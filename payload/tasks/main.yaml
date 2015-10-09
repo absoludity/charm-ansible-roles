@@ -170,4 +170,4 @@
   file:
     path: "{{ item }}"
     state: absent
-  with_items: "{{ old_payloads.stdout_lines }}"
+  with_items: old_payloads.stdout_lines
