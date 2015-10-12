@@ -23,7 +23,7 @@ if args.archives_dir is None:
     args.archives_dir = os.path.join(args.payload_dir, 'archives')
 
 
-current_dir = os.path.realpath(os.path.join(args.payload_dir, 'current'))
+current_dir = os.path.realpath(os.path.join(args.payload_dir, 'latest'))
 
 
 def verify_directories(args):
