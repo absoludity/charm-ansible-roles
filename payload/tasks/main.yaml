@@ -116,6 +116,7 @@
     path: "{{ current_payload_dir }}" 
     state: directory
     group: "{{ group }}"
+  when: already_extracted.stat.exists == False
 
 - name: Extract payload.
   tags:
