@@ -9,9 +9,11 @@
     wsgi_user={{ wsgi_user }}
     wsgi_group={{ wsgi_group }}
     port={{ listen_port }}
-    wsgi_access_logfile={{ access_log }}
+    wsgi_access_logfile="{{ access_log }}"
+    wsgi_error_logfile="{{ error_log }}"
     wsgi_wsgi_file={{ wsgi_application }}
-    wsgi_extra="--error-logfile={{ error_log }} {{ wsgi_extra }}"
+    wsgi_extra="{{ wsgi_extra }}"
+    wsgi_extra_config="{{ wsgi_extra_config }}"
     env_extra="{{ env_extra }}"
     gunicorn_path="{{ gunicorn_path }}"
     timestamp={{ ansible_date_time.iso8601_micro }}
