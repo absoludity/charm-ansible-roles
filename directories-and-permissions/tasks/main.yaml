@@ -15,7 +15,7 @@
     - install
     - upgrade-charm
     - config-changed
-  file: path={{ item }} state=directory group={{ user }}
+  command: mkdir -p {{ item }}
   with_items: readonly_dirs + writable_dirs 
 
 - name: Force permissions
