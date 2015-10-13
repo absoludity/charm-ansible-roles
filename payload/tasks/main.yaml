@@ -116,6 +116,7 @@
     path: "{{ current_payload_dir }}" 
     state: directory
     group: "{{ group }}"
+  when: already_extracted.stat.exists == False
 
 - name: Extract payload.
   tags:
@@ -146,6 +147,7 @@
 - name: Check whether the set current symlink exists.
   tags:
     - config-changed
+    - preload
   stat: path={{ payload_dir }}/{{ current_symlink }}
   register: stat_current_symlink
 
@@ -162,6 +164,7 @@
     - preload
   script: payloads-to-remove.py {{ payload_dir }}
   register: old_payloads
+  when: stat_current_symlink.stat.exists
 
 - name: Remove any old payloads
   tags:
@@ -171,3 +174,4 @@
     path: "{{ item }}"
     state: absent
   with_items: old_payloads.stdout_lines
+  when: stat_current_symlink.stat.exists
