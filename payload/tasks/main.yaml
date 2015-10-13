@@ -158,20 +158,13 @@
     msg: "The configured current_symlink does not exist, {{ payload_dir }}/{{ current_symlink }}"
   when: stat_current_symlink.stat.exists == False
 
-- name: Check whether live symlink exists
-  tags:
-    - config-changed
-    - preload
-  stat: path={{ payload_dir }}/current
-  register: stat_live_symlink
-
 - name: Check for any old payloads to remove
   tags:
     - config-changed
     - preload
   script: payloads-to-remove.py {{ payload_dir }}
   register: old_payloads
-  when: stat_live_symlink.stat.exists
+  when: stat_current_symlink.stat.exists
 
 - name: Remove any old payloads
   tags:
@@ -181,4 +174,4 @@
     path: "{{ item }}"
     state: absent
   with_items: old_payloads.stdout_lines
-  when: stat_live_symlink.stat.exists
+  when: stat_current_symlink.stat.exists
