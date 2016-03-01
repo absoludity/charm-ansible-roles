@@ -1,0 +1,78 @@
+- name: Determine if the files are already in place
+  stat: path="{{ output_dir }}/{{ item }}"
+  tags:
+    - config-changed
+    - preload
+  register: files_exists
+  with_items: swift_files
+
+- name: Ensure the files directory exists
+  tags:
+    - config-changed
+    - preload
+  file:
+    state: directory
+    group: "{{ group }}"
+    mode: 0644
+    path: "{{ files_dir }}/{{ item.item|dirname }}"
+  when: not item.stat.exists
+  with_items: files_exists.results
+
+- name: Copy files from the charm if not using base_uri
+  tags:
+    - config-changed
+    - preload
+  copy:
+    src: "{{ charm_dir }}/files/keys/{{ item.item }}"
+    dest: "{{ files_dir }}/{{ item.item|dirname }}/"
+    force: no
+    mode: 0644
+    group: "{{ user }}"
+  when: not item.stat.exists and base_uri == ""
+  with_items: files_exists.results
+
+- name: Generate an auth-token if required
+  tags:
+    - config-changed
+    - preload
+  uri:
+    url: "{{ files_swift_auth_url }}/tokens"
+    method: "POST"
+    HEADER_Content-Type: "application/json"
+    HEADER_Accept: "application/json"
+    body: " {{ files_swift_credentials }}" # Note, the space seems to ensure the value is a string, rather than a dict :/
+    return_content: "yes"
+  register: auth_request
+  when: not item.stat.exists and base_uri != "" and uri_auth_token == "" and files_swift_auth_url != ""
+  with_items: files_exists.results
+
+- name: Download files from the payloads uri using a configured auth token
+  tags:
+    - config-changed
+    - preload
+  uri:
+    url: "{{ base_uri }}/{{ item.item }}"
+    HEADER_X-Auth-Token: "{{ uri_auth_token }}"
+    dest: "{{ files_dir }}/{{ item.item }}"
+    mode: 0644
+  when: not item.stat.exists and base_uri != "" and uri_auth_token != ""
+  with_items: files_exists.results
+
+# The parameters below look a bit odd because we need to iterate over two
+# different lists which have another list inside each: files_exists.results
+# contains the list of files being processed and auth_requests.results contains
+# all tokens generated for each of those files
+
+- name: Download files from the payloads uri using the generated auth token
+  tags:
+    - config-changed
+    - preload
+  uri:
+    url: "{{ base_uri }}/{{ item[0].item }}"
+    HEADER_X-Auth-Token: "{{ item[1].json.access.token.id }}"
+    dest: "{{ files_dir }}/{{ item[0].item }}"
+    mode: 0644
+  when: not item[0].stat.exists and base_uri != "" and uri_auth_token == "" and "json" in item[1]
+  with_nested:
+    - files_exists.results
+    - auth_request.results
