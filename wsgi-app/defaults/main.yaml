@@ -9,5 +9,6 @@ error_log: "{{ log_dir }}/{{ service_name }}-error.log"
 wsgi_extra: "{{ '' if wsgi_extra_config else '--error-logfile=' + error_log }} {{ wsgi_extra }}"
 extra_logs: ""
 gunicorn_path: "gunicorn"
+talisker_path: "talisker"
 log_rotation_frequency: "daily"
 logs_to_keep: 729

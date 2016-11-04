@@ -1,3 +1,10 @@
+- name: check if talisker is available
+  tags:
+    - wsgi-file-relation-changed
+    - config-changed
+  stat: path="{{ talisker_path }}"
+  register: talisker
+
 - name: Set wsgi details if relation defined
   tags:
     - wsgi-file-relation-changed
@@ -15,7 +22,7 @@
     wsgi_extra="{{ wsgi_extra }}"
     wsgi_extra_config="{{ wsgi_extra_config }}"
     env_extra="{{ env_extra }}"
-    gunicorn_path="{{ gunicorn_path }}"
+    gunicorn_path="{% if talisker.stat.exists %}{{ talisker_path }}{% else %}{{ gunicorn_path }}{% endif %}"
     timestamp={{ ansible_date_time.iso8601_micro }}
   with_items: relations['wsgi-file']
 
